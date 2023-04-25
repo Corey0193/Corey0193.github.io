@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delay Knob Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #e50019;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        header img {
+            max-width: 200px;
+            background-color: #000;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        main {
+            padding: 2rem;
+        }
+
+        table {
+            width: 70%; /* Change this value to control the table width */
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 0.5rem;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        button {
+            background-color: #e50019;
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            margin-top: 1rem;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        button:hover {
+            background-color: #cc0016;
+        }
+
+        footer {
+            font-size: 0.8rem;
+            text-align: center;
+            padding: 1rem 0;
+            background-color: #f2f2f2;
+        }
+
+        .disclaimer {
+            font-size: 0.9rem;
+            color: #777;
+            margin-bottom: 1rem;
+        }
+
+        .center-text {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="https://duoson.com/wp-content/uploads/2021/04/logo-duoson.png" alt="Duoson">
+        <h1>Delay Knob Calculator</h1>
+    </header>
+    <main>
+        <p class="center-text">Enter the cumulative cable lengths (in feet) between rads:</p>
+        <table>
+            <tr>
+                <th>Transmitter Number</th>
+                <th>Cable Length (ft)</th>
+                <th>Delay Knob Setting</th>
+            </tr>
+            <tbody id="tableBody">
+            </tbody>
+        </table>
+        <br>
+        <p class="disclaimer">*Cumulative Cable Length refers to the total cable length leading up to the transmitter in question, not the cable length between individual transmitters. Please make sure to enter the correct cumulative cable lengths for accurate calculations.</p>
+        <p class="disclaimer">*La longueur cumulative de câble fait référence à la longueur totale de câble menant au transmetteur en question, et non à la longueur de câble entre les transmetteurs individuels. Veuillez vous assurer de saisir les longueurs cumulatives de câble correctes pour des calculs précis.</p>
+    </main>
+    <footer>
+        Version 2.2 - Created by Corey Burroughs
+    </footer>
+    <script>
+        function calculateDelayKnob(cableLengths) {
+            const cableLengthsMeters = cableLengths.map(length => length / 3.28084);
+            const maxCableLength = Math.max(...cableLengthsMeters);
+            return cableLengthsMeters.map(length => {
+                if (length > 0) {
+                    return Math.round(((maxCableLength * 4.17) - (length * 4.17)) / 33);
+                } else {
+                    return "";
+                }
+            });
+        }
+
+        const cableLengths = Array(8).fill(0);
+        const delayKnobs = calculateDelayKnob(cableLengths);
+        const tableBody = document.getElementById("tableBody");
+
+        for (let i = 0; i < 8; i++) {
+            const row = document.createElement("tr");
+            const transmitterNumberCell = document.createElement("td");
+            const cableLengthCell = document.createElement("td");
+            const delayKnobCell = document.createElement("td");
+
+            transmitterNumberCell.textContent = i + 1;
+            cableLengthCell.innerHTML = `<input type="number" min="0" value="${cableLengths[i]}" onchange="updateCableLength(event, ${i})">`;
+            delayKnobCell.textContent = delayKnobs[i];
+
+            row.appendChild(transmitterNumberCell);
+            row.appendChild(cableLengthCell);
+            row.appendChild(delayKnobCell);
+            tableBody.appendChild(row);
+        }
+
+
+        function updateCableLength(event, index) {
+            cableLengths[index] = parseFloat(event.target.value) || 0;
+            const newDelayKnobs = calculateDelayKnob(cableLengths);
+
+            for (let i = 0; i < 15; i++) {
+                tableBody.children[i].children[2].textContent = newDelayKnobs[i];
+            }
+        }
+    </script>
+</body>
+</html>
